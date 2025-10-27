@@ -28,7 +28,7 @@
     "jsonwebtoken": "^9.0.2",
     "langchain": "^0.3.12",
     "morgan": "^1.10.0",
-    "papaparse": "^5.4.1",
+    "papaparse": "^5.4.1", 
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "xlsx": "^0.18.5",
