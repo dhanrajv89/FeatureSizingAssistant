@@ -1,144 +1,95 @@
 # Feature Sizing Assistant
 
-Feature Sizing Assistant helps pre-sales and business development teams convert free-form feature ideas into scoped delivery estimates. Authenticated users capture project context, the app calls a large language model for structured sizing, and results persist with version history plus export-ready artifacts.
+Feature Sizing Assistant helps pre-sales and delivery teams convert rough feature ideas into structured estimates. The project is now split into two deployable apps:
 
-## Highlights
+- `frontend/` – React 19 + Vite + Material UI dashboard
+- `server/` – Node.js Express API with Prisma/PostgreSQL and LangChain-powered LLM sizing
 
-- Google OAuth login backed by Passport + Prisma and JWT cookies
-- LangChain orchestration with Zod-enforced JSON output (OpenAI or Gemini)
-- React 19 + React Router + Material UI 6 dashboard powered by React Query
-- Node.js + Express API with Prisma ORM and PostgreSQL persistence
-- CSV and XLSX export endpoints ready for proposal attachments
-- Per-project versioning with re-estimation workflow
+## Folder Layout
 
-## Tech Stack
+```
+.
++-- frontend/
+¦   +-- src/               # React source (components, pages, providers, routes)
+¦   +-- public/            # Static assets served by Vite
+¦   +-- package.json       # Frontend scripts
+¦   +-- ...                # vite.config.ts, tsconfig.json, .env.example, etc.
++-- server/
+    +-- src/               # Express routes, services, auth, LLM helpers
+    +-- prisma/            # Prisma schema & migrations
+    +-- package.json       # Backend scripts
+```
 
-| Layer    | Technology |
-| -------- | ---------- |
-| Frontend | React 19 + Vite + React Router + Material UI 6 + React Query |
-| Backend  | Node.js (Express) + TypeScript |
-| Auth     | Passport Google OAuth 2.0 + JWT cookies |
-| LLM      | LangChain (@langchain/openai, @langchain/google-genai) |
-| Database | PostgreSQL (Prisma ORM) |
-| Export   | papaparse, xlsx |
-
-## Quick Start
+## Local Development
 
 1. **Install dependencies**
 
-   `ash
-   npm install
-   npm --prefix server install
-   `
+   ```bash
+   npm install --prefix frontend
+   npm install --prefix server
+   ```
 
-2. **Configure environment variables**
+2. **Environment variables**
 
-   `ash
-   cp .env.example .env.local
+   ```bash
+   cp frontend/.env.example frontend/.env.local
    cp server/.env.example server/.env
-   `
+   ```
 
-   - .env.local – point the frontend to the API (VITE_API_URL=http://localhost:4000).
-   - server/.env – supply Google OAuth keys, a JWT secret, database URL, and LLM provider keys.
+   - `frontend/.env.local` should set `VITE_API_URL=http://localhost:4000`.
+   - `server/.env` requires Google OAuth keys, `AUTH_JWT_SECRET`, `DATABASE_URL`, LLM config, etc.
 
-3. **Prepare the database**
+3. **Database & Prisma**
 
-   Ensure PostgreSQL is running, then generate the Prisma client and apply migrations:
-
-   `ash
-   npm run prisma:generate
-   npx --prefix server prisma migrate dev --name init
-   `
+   ```bash
+   npm run prisma:generate --prefix frontend
+   npm run prisma:migrate:dev --prefix frontend
+   ```
 
 4. **Run the apps**
 
-   In one terminal start the backend:
+   ```bash
+   npm run dev:server --prefix frontend   # starts Express API on 4000
+   npm run dev --prefix frontend          # in another terminal, starts Vite on 5173
+   ```
 
-   `ash
-   npm run dev:server
-   `
+   Visit http://localhost:5173 and sign in with Google to reach the dashboard.
 
-   In another terminal start the React client:
-
-   `ash
-   npm run dev
-   `
-
-   Open [http://localhost:5173](http://localhost:5173) and authenticate with Google to reach the React + MUI dashboard.
-
-## LLM Configuration
-
-| Provider | Required variables | Example model |
-| -------- | ------------------ | ------------- |
-| openai | OPENAI_API_KEY, LLM_MODEL | gpt-4o-mini, gpt-4.1, etc. |
-| gemini | GEMINI_API_KEY, LLM_MODEL | gemini-1.5-pro, etc. |
-
-Set LLM_PROVIDER in server/.env accordingly. Optionally enable ENABLE_PROMPT_LOGS=true for additional LangChain logging while debugging.
-
-## NPM Scripts
+## Frontend Scripts (run with `npm run <script> --prefix frontend` or inside `frontend/`)
 
 | Script | Description |
 | ------ | ----------- |
-| 
-pm run dev | Start the Vite dev server (React frontend) |
-| 
-pm run build | Build the frontend for production |
-| 
-pm run preview | Preview the built frontend |
-| 
-pm run lint | Run ESLint on the frontend source |
-| 
-pm run dev:server | Start the Express backend with live reload (ts-node/tsx) |
-| 
-pm run build:server | Compile the backend (TypeScript ? dist) |
-| 
-pm run start:server | Run the compiled backend |
-| 
-pm run prisma:generate | Generate the Prisma client (backend) |
-| 
-pm run prisma:migrate | Apply Prisma migrations in deploy environments |
-| 
-pm run prisma:studio | Open Prisma Studio |
+| `dev` | Start Vite dev server |
+| `build` | Production build |
+| `preview` | Preview `dist/` locally |
+| `lint` | Run ESLint |
+| `dev:server` | Start backend in watch mode |
+| `build:server` | Compile backend TypeScript |
+| `start:server` | Run compiled backend |
+| `prisma:generate` | Generate Prisma client |
+| `prisma:migrate:dev` | Apply local Prisma migrations |
+| `prisma:migrate:deploy` | Apply migrations in deploy envs |
+| `prisma:studio` | Launch Prisma Studio |
 
-## Key Folders
+## Deployment on Render (summary)
 
-`
-.
-+-- src/                 # React + MUI application (Vite)
-¦   +-- components/      # Reusable UI (auth, dashboard, detail view, layout)
-¦   +-- pages/           # React Router pages
-¦   +-- providers/       # App-wide providers (Auth, QueryClient, Theme)
-¦   +-- routes/          # Protected route helpers
-¦   +-- lib/             # Client-side API helpers
-¦   +-- styles/          # Global styles
-+-- public/              # Static assets served by Vite
-+-- server/              # Node.js + Express backend
-¦   +-- src/
-¦   ¦   +-- auth/        # Passport strategy, JWT helpers, auth middleware
-¦   ¦   +-- db/          # Prisma client
-¦   ¦   +-- llm/         # LangChain config, prompts, schema enforcement
-¦   ¦   +-- routes/      # Express routers (auth, estimates)
-¦   ¦   +-- services/    # Business logic (estimates, exports)
-¦   ¦   +-- types/       # Backend DTO definitions
-¦   +-- prisma/          # Prisma schema & migrations
-+-- .env.example         # Frontend env sample (Vite)
-+-- server/.env.example  # Backend env sample (Express)
-`
-
-## Estimation Flow
-
-1. The user submits project metadata and platform flags from the React dashboard.
-2. The Express API calls LangChain with a Zod-enforced schema to obtain modules, risks, missing items, and summary.
-3. Prisma stores the estimate plus its related records and increments the project version.
-4. React Query refreshes the dashboard, showing the latest sizing, version timeline, and exports.
-5. CSV/XLSX download endpoints provide proposal-ready artifacts on demand.
+1. **Database** – Create a Render PostgreSQL instance, copy the `DATABASE_URL`.
+2. **Backend Web Service**
+   - Root: `server`
+   - Build: `npm install && npm run build && npm run prisma:migrate:deploy`
+   - Start: `npm run start`
+   - Env vars: `CLIENT_URL`, `SERVER_URL`, `DATABASE_URL`, OAuth + LLM keys, JWT secret, etc.
+3. **Frontend Static Site**
+   - Root: `frontend`
+   - Build: `npm install && npm run build`
+   - Publish: `dist`
+   - Env vars: `VITE_API_URL=<backend URL>`
+4. Update Google OAuth redirect URIs to the Render backend URL and test the flow end-to-end.
 
 ## Notes
 
-- Use Docker or a managed PostgreSQL service for local development and production.
-- Run 
-pm run lint before committing frontend changes; add automated tests as the feature set expands.
-- In production deployments, run 
-pm run prisma:migrate (or prisma migrate deploy) before starting the backend.
+- Secrets should never be committed; store them in `.env` files locally and environment variables in production.
+- The server enforces env validation via `server/src/env.ts`.
+- Module sizing heuristics and risk generation live under `server/src/llm/` and can be tuned per deployment.
 
-Happy sizing! Contributions and enhancements are welcome—open an issue or PR with ideas.
+Happy sizing!
