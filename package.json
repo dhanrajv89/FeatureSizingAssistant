@@ -1,0 +1,52 @@
+{
+  "name": "feature-sizing-assistant",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",   
+    "prisma:generate": "npm --prefix server run prisma:generate",
+    "prisma:migrate:dev": "npm --prefix server run prisma:migrate:dev",
+    "prisma:migrate:deploy": "npm --prefix server run prisma:migrate:deploy",
+    "prisma:studio": "npm --prefix server run prisma:studio",
+    "dev:server": "npm --prefix server run dev",
+    "build:server": "npm --prefix server run build",
+    "start:server": "npm --prefix server run start"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@hookform/resolvers": "^3.9.0",
+    "@mui/icons-material": "^6.1.0",
+    "@mui/material": "^6.1.0",
+    "@tanstack/react-query": "^5.62.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
+    "papaparse": "^5.4.1",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-hook-form": "^7.53.1",
+    "react-router-dom": "^6.28.0",
+    "xlsx": "^0.18.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/papaparse": "^5.3.14",
+    "@typescript-eslint/eslint-plugin": "^8.12.2",
+    "@typescript-eslint/parser": "^8.12.2",
+    "@vitejs/plugin-react": "^4.3.2",
+    "eslint": "^9.12.0",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.6",
+    "prisma": "^5.22.0",
+    "typescript": "^5",
+    "vite": "^5.4.9"
+  }
+}

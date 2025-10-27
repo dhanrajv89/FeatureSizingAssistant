@@ -1,0 +1,35 @@
+*** Begin Patch
+*** Update File: src/components/dashboard/DashboardView.tsx
+@@
+-type DashboardViewProps = {
+-  initialEstimates: EstimateDTO[];
+-};
+-
+ type SnackbarState = {
+   message: string;
+   severity: "success" | "error";
+ };
+@@
+-const sortEstimates = (estimates: EstimateDTO[]) =>
+-  [...estimates].sort(
+-    (a, b) =>
+-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+-  );
+-
+-export const DashboardView = ({ initialEstimates }: DashboardViewProps) => {
++const sortEstimates = (estimates: EstimateDTO[]) =>
++  [...estimates].sort(
++    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
++  );
++
++export const DashboardView = () => {
+   const queryClient = useQueryClient();
+-  const [selectedId, setSelectedId] = useState<string | null>(
+-    initialEstimates[0]?.id ?? null,
+-  );
++  const [selectedId, setSelectedId] = useState<string | null>(null);
+@@
+-    initialData: sortEstimates(initialEstimates),
++    initialData: [],
+   });
+*** End Patch
