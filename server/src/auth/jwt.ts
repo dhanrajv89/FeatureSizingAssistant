@@ -1,5 +1,4 @@
 import jwt, { type Secret, type SignOptions } from "jsonwebtoken";
-import type { StringValue } from "ms";
 
 import { env } from "@/env";
 
@@ -10,10 +9,8 @@ type AuthTokenPayload = {
 
 const TOKEN_NAME = "feature-sizing-token";
 const JWT_SECRET = env.AUTH_JWT_SECRET as Secret;
-const JWT_EXPIRES_IN = env.AUTH_JWT_EXPIRES_IN as StringValue;
-const JWT_OPTIONS: SignOptions = {
-  expiresIn: JWT_EXPIRES_IN,
-};
+const JWT_EXPIRES_IN = env.AUTH_JWT_EXPIRES_IN;
+const JWT_OPTIONS: SignOptions = { expiresIn: JWT_EXPIRES_IN };
 
 export const getAuthCookieName = () => TOKEN_NAME;
 
