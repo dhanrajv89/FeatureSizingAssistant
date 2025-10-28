@@ -11,7 +11,7 @@
     "prisma:migrate:dev": "prisma migrate dev --name init",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
-    "postinstall": "prisma generate || true"
+    "postinstall": "prisma generate || node -e \"process.exit(0)\""
   },
   "dependencies": {
     "@langchain/google-genai": "^0.1.1",
