@@ -11,7 +11,6 @@ export default [
       "node_modules/**",
       "server/dist/**",
       "server/node_modules/**",
-      ".next/**",
     ],
   },
   js.configs.recommended,

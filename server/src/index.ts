@@ -7,7 +7,6 @@ import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import morgan from "morgan";
 
-import passport from "@/auth/passport";
 import { env } from "@/env";
 import { logger } from "@/logger";
 import { authRouter } from "@/routes/auth";
@@ -40,7 +39,6 @@ app.use(
     legacyHeaders: false,
   }),
 );
-app.use(passport.initialize());
 
 app.get("/health", (_req, res) => {
   res.json({ status: "ok" });

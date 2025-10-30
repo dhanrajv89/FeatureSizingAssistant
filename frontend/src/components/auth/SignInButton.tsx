@@ -10,7 +10,11 @@ export const SignInButton = () => {
 
   const handleClick = () => {
     setLoading(true);
-    signIn();
+    void signIn()
+      .catch((error) => {
+        console.error("Google sign-in failed", error);
+      })
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -21,7 +25,7 @@ export const SignInButton = () => {
       onClick={handleClick}
       disabled={loading}
     >
-      {loading ? "Redirecting…" : "Continue with Google"}
+      {loading ? "Signing in..." : "Continue with Google"}
     </Button>
   );
 };

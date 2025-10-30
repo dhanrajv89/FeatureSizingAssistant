@@ -1,13 +1,14 @@
 import { Router } from "express";
+import { OAuth2Client } from "google-auth-library";
 
 import { AuthenticatedRequest, optionalAuth, requireAuth } from "@/auth/middleware";
-import passport from "@/auth/passport";
 import { getAuthCookieName, signAuthToken } from "@/auth/jwt";
 import { env } from "@/env";
 import { prisma } from "@/db/client";
 import { logger } from "@/logger";
 
 const router = Router();
+const googleClient = new OAuth2Client(env.GOOGLE_CLIENT_ID);
 
 const baseCookieOptions = {
   httpOnly: true,
@@ -16,34 +17,64 @@ const baseCookieOptions = {
   path: "/",
 };
 
-router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"], session: false }),
-);
+router.post("/google", async (req, res) => {
+  const credential: unknown = req.body?.credential;
+  if (typeof credential !== "string" || credential.length === 0) {
+    return res.status(400).json({ error: "Missing credential" });
+  }
 
-router.get(
-  "/google/callback",
-  passport.authenticate("google", {
-    session: false,
-    failureRedirect: `${env.CLIENT_URL}?auth_error=google`,
-  }),
-  (req, res) => {
-    const user = req.user as { id: string; email?: string } | undefined;
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
 
-    if (!user) {
-      logger.warn("Google callback without user payload");
-      return res.redirect(`${env.CLIENT_URL}?auth_error=missing_user`);
+    if (!payload?.sub || !payload.email) {
+      logger.warn("Google credential missing required fields");
+      return res.status(401).json({ error: "Invalid Google credential" });
     }
 
-    const token = signAuthToken({ sub: user.id, email: user.email });
+    const fallbackName = `${payload.given_name ?? ""} ${payload.family_name ?? ""}`.trim();
+    const displayName = payload.name ?? (fallbackName.length > 0 ? fallbackName : null);
+    const user = await prisma.user.upsert({
+      where: { email: payload.email },
+      update: {
+        name: displayName,
+        image: payload.picture ?? null,
+        provider: "google",
+        providerId: payload.sub,
+      },
+      create: {
+        email: payload.email,
+        name: displayName,
+        image: payload.picture ?? null,
+        provider: "google",
+        providerId: payload.sub,
+      },
+    });
 
+    const token = signAuthToken({ sub: user.id, email: user.email });
     res.cookie(getAuthCookieName(), token, {
       ...baseCookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-    return res.redirect(`${env.CLIENT_URL}/dashboard`);
-  },
-);
+
+    const responseUser = {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      image: user.image,
+      provider: user.provider,
+      providerId: user.providerId,
+    };
+
+    return res.json({ user: responseUser });
+  } catch (error) {
+    logger.error("Failed to verify Google credential", error);
+    return res.status(401).json({ error: "Invalid Google credential" });
+  }
+});
 
 router.get("/me", requireAuth, async (req: AuthenticatedRequest, res) => {
   const user = await prisma.user.findUnique({
