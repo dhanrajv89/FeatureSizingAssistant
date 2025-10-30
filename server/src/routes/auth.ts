@@ -13,9 +13,10 @@ const googleClient = new OAuth2Client(env.GOOGLE_CLIENT_ID);
 const baseCookieOptions = {
   httpOnly: true,
   secure: env.NODE_ENV === "production",
-  sameSite: "lax" as const,
+  sameSite: env.NODE_ENV === "production" ? "none" as const : "lax" as const,
   path: "/",
 };
+
 
 router.post("/google", async (req, res) => {
   const credential: unknown = req.body?.credential;
